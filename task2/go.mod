@@ -1,8 +1,9 @@
-module github.com/example/github-two-services
+module github.com/pantonny/golang-course
 
 go 1.24
 
 require (
+	github.com/golang/protobuf v1.5.4
 	github.com/oapi-codegen/runtime v1.3.0
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.34.2

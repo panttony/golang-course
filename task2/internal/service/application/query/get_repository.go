@@ -2,19 +2,16 @@ package query
 
 import (
 	"context"
+	"net/http"
 
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	
-	github_v1 "github.com/example/github-two-services/internal/gen/proto/github/v1"
-	domain "github.com/example/github-two-services/internal/service/domain"
+
+	github_v1 "github.com/pantonny/golang-course/internal/gen/proto/github/v1"
 )
 
-var errInternal = status.Errorf(codes.Internal, "Internal server error")
-
 type githubReader interface {
-	GetByFullName(ctx context.Context, owner, repo string) (domain.RepoResponse, error)
+	GetByFullName(ctx context.Context, owner, repo string) (dto *github_v1.GetRepositoryResponse, statusCode int, err error)
 }
 
 type githubRequestHandler struct {
@@ -29,22 +26,24 @@ func NewGetRepositoryQuery(reader githubReader) *githubRequestHandler {
 }
 
 func (q *githubRequestHandler) GetRepository(ctx context.Context, req *github_v1.GetRepositoryRequest) (*github_v1.GetRepositoryResponse, error) {
-	httpResp, err := q.reader.GetByFullName(ctx, req.GetOwner(), req.GetRepo())
+	resp, statusCode, err := q.reader.GetByFullName(ctx, req.GetOwner(), req.GetRepo())
 
 	if err != nil {
-		return nil, errInternal
+		return nil, codeToError(statusCode)
 	}
 
-	return httpToProto(httpResp), nil
+	return resp, nil
 }
 
-func httpToProto(resp domain.RepoResponse) *github_v1.GetRepositoryResponse {
-	return &github_v1.GetRepositoryResponse{
-		Owner:           resp.Owner.Login,
-		Name:            resp.Name,
-		Description:     resp.Description,
-		StargazersCount: resp.Stargazers,
-		ForksCount:      resp.Forks,
-		CreatedAt:       timestamppb.New(resp.CreatedAt),
+func codeToError(code int) error {
+	switch code {
+	case http.StatusMovedPermanently:
+		return status.Errorf(codes.NotFound, "Resource moved permanently")
+	case http.StatusForbidden:
+		return status.Errorf(codes.PermissionDenied, "Permission denied")
+	case http.StatusNotFound:
+		return status.Errorf(codes.NotFound, "Resource not found")
+	default:
+		return status.Errorf(codes.Internal, "Internal server error")
 	}
 }

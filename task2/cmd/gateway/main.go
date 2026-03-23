@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	grpc_client "github.com/example/github-two-services/internal/gateway/adapter/grpc_client"
-	http_transport "github.com/example/github-two-services/internal/gateway/transport/http"
-	config "github.com/example/github-two-services/internal/shared/config"
+	grpc_client "github.com/pantonny/golang-course/internal/gateway/adapter/grpc_client"
+	http_transport "github.com/pantonny/golang-course/internal/gateway/transport/http"
+	config "github.com/pantonny/golang-course/internal/shared/config"
 )
 
 func main() {
@@ -16,8 +16,8 @@ func main() {
 		log.Fatalf("cannot create grpc client: %v", err)
 	}
 
-	strictHander := http_transport.NewHandler(client)
-	server := http_transport.NewServer(cfg.HTTPAddr, strictHander)
+	strictHandler := http_transport.NewHandler(client)
+	server := http_transport.NewServer(cfg.HTTPAddr, strictHandler)
 
 	if err := server.Run(); err != nil {
 		log.Fatalf("gateway stopped with error: %v", err)

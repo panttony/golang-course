@@ -7,7 +7,7 @@ import (
 
 	grpc "google.golang.org/grpc"
 
-	github_v1 "github.com/example/github-two-services/internal/gen/proto/github/v1"
+	github_v1 "github.com/pantonny/golang-course/internal/gen/proto/github/v1"
 )
 
 type githubApiHandler interface {

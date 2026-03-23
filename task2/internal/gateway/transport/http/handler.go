@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	gen "github.com/example/github-two-services/internal/gateway/transport/http/gen"
+	gen "github.com/pantonny/golang-course/internal/gateway/transport/http/gen"
 )
 
 type service interface {

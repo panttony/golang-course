@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	query "github.com/example/github-two-services/internal/service/application/query"
-	github_api "github.com/example/github-two-services/internal/service/infrastructure/github_api"
-	grpc_server "github.com/example/github-two-services/internal/service/transport/grpc"
-	config "github.com/example/github-two-services/internal/shared/config"
+	query "github.com/pantonny/golang-course/internal/service/application/query"
+	github_api "github.com/pantonny/golang-course/internal/service/infrastructure/github_api"
+	grpc_server "github.com/pantonny/golang-course/internal/service/transport/grpc"
+	config "github.com/pantonny/golang-course/internal/shared/config"
 )
 
 func main() {

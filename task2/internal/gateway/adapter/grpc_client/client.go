@@ -7,8 +7,8 @@ import (
 	grpc "google.golang.org/grpc"
 	insecure "google.golang.org/grpc/credentials/insecure"
 
-	"github.com/example/github-two-services/internal/gateway/transport/http/gen"
-	github_v1 "github.com/example/github-two-services/internal/gen/proto/github/v1"
+	gen "github.com/pantonny/golang-course/internal/gateway/transport/http/gen"
+	github_v1 "github.com/pantonny/golang-course/internal/gen/proto/github/v1"
 )
 
 type Client struct {

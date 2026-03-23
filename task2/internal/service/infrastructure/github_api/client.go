@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	domain "github.com/example/github-two-services/internal/service/domain"
+	github_v1 "github.com/pantonny/golang-course/internal/gen/proto/github/v1"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Client struct {
@@ -16,7 +17,7 @@ type Client struct {
 	httpClient *http.Client
 }
 
-type RepoResponse struct {
+type repoResponse struct {
 	Owner       Owner     `json:"owner"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
@@ -38,49 +39,42 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 	}
 }
 
-func (c *Client) GetByFullName(ctx context.Context, owner, repo string) (domain.RepoResponse, error) {
+func (c *Client) GetByFullName(ctx context.Context, owner, repo string) (*github_v1.GetRepositoryResponse, int, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s", c.baseURL, owner, repo)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return domain.RepoResponse{}, fmt.Errorf("create github request: %w", err)
+		return nil, -1, err
 	}
 
 	req.Header.Set("Accept", "application/vnd.github+json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return domain.RepoResponse{}, fmt.Errorf("github request failed: %w", err)
+		return nil, resp.StatusCode, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return domain.RepoResponse{}, fmt.Errorf(messageError(resp.StatusCode))
+		return nil, resp.StatusCode, fmt.Errorf("%s", http.StatusText(resp.StatusCode))
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return domain.RepoResponse{}, fmt.Errorf("read github response: %w", err)
+		return nil, resp.StatusCode, err
 	}
 
-	var dto domain.RepoResponse
-	if err := json.Unmarshal(body, &dto); err != nil {
-		return domain.RepoResponse{}, fmt.Errorf("decode github response: %w", err)
+	dto := &repoResponse{}
+	if err := json.Unmarshal(body, dto); err != nil {
+		return nil, resp.StatusCode, err
 	}
 
-	return dto, nil
-}
-
-func messageError(code int) string {
-	switch code {
-	case http.StatusMovedPermanently:
-		return http.StatusText(code)
-	case http.StatusForbidden:
-		return http.StatusText(code)
-	case http.StatusNotFound:
-		return http.StatusText(code)
-	default:
-	}
-
-	return "unknown error"
+	return &github_v1.GetRepositoryResponse{
+		Owner:           dto.Owner.Login,
+		Name:            dto.Name,
+		Description:     dto.Description,
+		StargazersCount: dto.Stargazers,
+		ForksCount:      dto.Forks,
+		CreatedAt:       timestamppb.New(dto.CreatedAt),
+	}, resp.StatusCode, nil
 }

@@ -1,0 +1,9 @@
+FROM golang:1.24 AS build
+WORKDIR /app
+COPY . .
+RUN go build -o /bin/service ./cmd/service
+
+FROM gcr.io/distroless/base-debian12
+COPY --from=build /bin/service /service
+EXPOSE 9090
+ENTRYPOINT ["/service"]

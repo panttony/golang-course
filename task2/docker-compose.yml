@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   service:
     build:
@@ -11,6 +9,8 @@ services:
       GITHUB_TIMEOUT: "5s"
     ports:
       - "9090:9090"
+    networks:
+      - github
 
   gateway:
     build:
@@ -23,3 +23,9 @@ services:
       GRPC_ADDR: "service:9090"
     ports:
       - "8080:8080"
+    networks:
+      - github
+
+networks:
+  github:
+    driver: bridge

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package github.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/panttony/golang-course/api/gen/proto/service;api";
+
+message GetRepositoryRequest {
+  string owner = 1;
+  string repo = 2;
+}
+
+message GetRepositoryResponse {
+  string owner = 1;
+  string name = 2;
+  string description = 3;
+  int64 stargazers_count = 4;
+  int64 forks_count = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+service GitHubService {
+  rpc GetRepository(GetRepositoryRequest) returns (GetRepositoryResponse);
+}
